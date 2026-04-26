@@ -21,8 +21,12 @@ server:
 
 app:
   jwt:
-    secret: taskmanagersecretkey2024authverylongstring
+    secret: dGFza21hbmFnZXJzZWNyZXRrZXkyMDI0YXV0aGVudGljYXRpb25qd3R0b2tlbg==
     expiration: 86400000  # 24h in ms
 
 cors:
   allowed-origins: http://localhost:3000
+
+gemini:
+    api:
+      key: ${GEM_KEY}

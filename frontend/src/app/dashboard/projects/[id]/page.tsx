@@ -5,8 +5,10 @@ import { projectsApi, tasksApi } from "@/lib/api";
 import { Navbar } from "@/components/layout/Navbar";
 import { TaskColumn } from "@/components/tasks/TaskColumn";
 import { CreateTaskModal } from "@/components/tasks/CreateTaskModal";
+import { AiAssistant } from "@/components/ai/AiAssistant";
+import { StandupModal } from "@/components/ai/StandupModal";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Plus, Loader2 } from "lucide-react";
+import { ChevronLeft, Plus, Loader2, ClipboardList } from "lucide-react";
 import type { Task } from "@/types";
 
 const COLUMNS: { key: Task["status"]; label: string }[] = [
@@ -21,6 +23,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const projectId = parseInt(id);
   const router = useRouter();
   const [showCreate, setShowCreate] = useState(false);
+  const [showStandup, setShowStandup] = useState(false);
 
   const { data: project } = useQuery({
     queryKey: ["project", projectId],
@@ -41,21 +44,34 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar />
       <main className="flex-1 flex flex-col max-w-full px-6 py-6">
+
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <button onClick={() => router.back()} className="text-slate-400 hover:text-slate-700 transition-colors">
+            <button onClick={() => router.back()}
+              className="text-slate-400 hover:text-slate-700 transition-colors">
               <ChevronLeft className="w-5 h-5" />
             </button>
             <div>
               <h1 className="text-xl font-bold text-slate-900">{project?.name}</h1>
-              {project?.description && <p className="text-sm text-slate-500 mt-0.5">{project.description}</p>}
+              {project?.description && (
+                <p className="text-sm text-slate-500 mt-0.5">{project.description}</p>
+              )}
             </div>
           </div>
-          <button onClick={() => setShowCreate(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg transition-colors">
-            <Plus className="w-4 h-4" /> Add Task
-          </button>
+
+          {/* Action buttons */}
+          <div className="flex items-center gap-2">
+            <button onClick={() => setShowStandup(true)}
+              className="flex items-center gap-2 px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium rounded-lg transition-colors">
+              <ClipboardList className="w-4 h-4 text-brand-500" />
+              Daily Standup
+            </button>
+            <button onClick={() => setShowCreate(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg transition-colors">
+              <Plus className="w-4 h-4" /> Add Task
+            </button>
+          </div>
         </div>
 
         {/* Kanban Board */}
@@ -73,9 +89,20 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           </div>
         )}
       </main>
+
+      {/* AI Chat Assistant — floating bottom right */}
+      <AiAssistant projectId={projectId} />
+
+      {/* Modals */}
       {showCreate && (
-        <CreateTaskModal projectId={projectId} onClose={() => setShowCreate(false)}
+        <CreateTaskModal projectId={projectId}
+          onClose={() => setShowCreate(false)}
           onSuccess={() => { setShowCreate(false); refetch(); }} />
+      )}
+      {showStandup && project && (
+        <StandupModal projectId={projectId}
+          projectName={project.name}
+          onClose={() => setShowStandup(false)} />
       )}
     </div>
   );
