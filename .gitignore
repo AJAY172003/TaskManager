@@ -1,0 +1,17 @@
+# Backend
+backend/target/
+backend/.mvn/
+*.class
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+
+# Secrets
+.env.local
+application.properties
+
+# IDE
+.idea/
+*.iml
+.DS_Store
